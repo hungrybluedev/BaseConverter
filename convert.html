@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta property="og:image" content="https://i.imgur.com/bc0HfI9.png" /> -->
+    <meta
+      name="description"
+      content="Convert between different numeric bases."
+    />
+    <title>Base Converter | Hungry Blue Dev</title>
+    <link rel="shortcut icon" href="images/icon48.png" type="image/x-icon" />
+    <link rel="stylesheet" href="styles/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Base Conversion</h1>
+    </header>
+    <main>
+      <section id="input-section">
+        <label for="source-value">Number you want to convert</label>
+        <input
+          id="source-value"
+          name="source-value"
+          type="text"
+          class="text-input"
+          placeholder="For example, 51966"
+        />
+        <div class="bases-div">
+          <span class="base-input-span">
+            <label for="source-base">Convert from</label>
+            <input
+              id="source-base"
+              name="source-base"
+              type="number"
+              class="numeric-input"
+              placeholder="10"
+            />
+          </span>
+          <span class="base-input-span">
+            <label for="target-base">Convert to</label>
+            <input
+              id="target-base"
+              name="target-base"
+              type="number"
+              class="numeric-input"
+              placeholder="16"
+            />
+          </span>
+        </div>
+        <div id="error-div">
+          <span id="info-icon" class="hidden"></span>
+          <p id="error-text"></p>
+        </div>
+      </section>
+      <button id="convert-button">Convert</button>
+      <section id="result-section">
+        <span id="result-label">Result</span>
+        <div id="result" name="result" class="text-input"></div>
+      </section>
+    </main>
+    <script type="module" src="scripts/convert.js"></script>
+  </body>
+</html>
