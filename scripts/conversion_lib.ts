@@ -1,19 +1,53 @@
+export const DIGITS =
+  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+
+/**
+ * Returns a string containing the subset of digits allowed for the specified radix.
+ *
+ * @param radix The radix against which the legal digits are generated.
+ */
+const getPartialDigitString = (radix: number): string => {
+  return DIGITS.substr(0, radix);
+};
+
+/**
+ * Takes a (valid) numeric integer string and converts from the given radix
+ * to the specified radix. The radices are not validated and expected
+ * to lie in the range 2 (inclusive) to DIGITS.length (inclusive).
+ *
+ * A numeric string is a valid integer if:
+ * 1. It has no leading sign, or just one leading "+" or "-".
+ * 2. All the characters must be digits from 0 (inclusive) to radix (exclusive).
+ * 3. Does not have digit separators. Use the `removeDigitSeparatorsFrom` function.
+ *
+ * @param input The numeric string to parse.
+ * @param radixFrom The radix the given numeric value is in.
+ * @param radixTo The radix we want to convert the numeric value to.
+ */
 export const convertInteger = (
   input: string,
   radixFrom: number,
   radixTo: number
 ): string | null => {
+  // shortcut for cases when the bases are the same
+  if (radixFrom === radixTo) {
+    return input;
+  }
   const resultOrNull = parseBigIntFromRadix(input, radixFrom);
-
   if (!resultOrNull) {
     return null;
   }
-
   let result = resultOrNull as bigint;
-
   return convertBigIntToRadix(result, radixTo);
 };
 
+/**
+ * Returns a bigint from the given numeric string. It assumes that the string does
+ * not have digit separators.
+ *
+ * @param input The cleaned numeric string to parse and obtain a bigint from.
+ * @param radix The radix which will be used to decode the given input string.
+ */
 const parseBigIntFromRadix = (input: string, radix: number): bigint | null => {
   let result = 0n;
   let index = 0;
@@ -30,8 +64,9 @@ const parseBigIntFromRadix = (input: string, radix: number): bigint | null => {
       sign = 1n;
   }
 
-  const partialDigitsFrom = partialDigitString(radix);
+  const partialDigitsFrom = getPartialDigitString(radix);
   const bigRadixFrom = BigInt(radix);
+
   while (index < input.length) {
     const digit = partialDigitsFrom.indexOf(input[index]);
     if (digit === -1) {
@@ -44,20 +79,40 @@ const parseBigIntFromRadix = (input: string, radix: number): bigint | null => {
   return sign * result;
 };
 
-const convertBigIntToRadix = (result: bigint, radix: number): string => {
-  let convertedArray: string[] = [];
-  const partialDigitsTo = partialDigitString(radix);
+/**
+ * Converts the given bigint value to the requested radix.
+ *
+ * @param integer The integer to convert to the specified radix.
+ * @param radix The target radix for conversion.
+ */
+const convertBigIntToRadix = (integer: bigint, radix: number): string => {
+  let convertedArray = new Array<string>();
+  const partialDigitsTo = getPartialDigitString(radix);
   const bigRadixTo = BigInt(radix);
 
-  while (result > 0) {
-    const digit = Number(result % bigRadixTo);
+  const isNegative = integer < 0n;
+  let absoluteValue = isNegative ? -integer : integer;
+  while (absoluteValue > 0n) {
+    const digit = Number(absoluteValue % bigRadixTo);
     convertedArray.unshift(partialDigitsTo[digit]);
-    result /= bigRadixTo;
+    absoluteValue /= bigRadixTo;
   }
 
-  return convertedArray.join("");
+  return (isNegative ? "-" : "") + convertedArray.join("");
 };
 
+/**
+ * Returns true if a numeric string is valid with respect to a given radix.
+ * Returns false otherwise.
+ *
+ * In general, a numeric string is valid if:
+ * 1. It has no leading sign, or just one leading "+" or "-".
+ * 2. All the characters must be digits from 0 (inclusive) to radix (exclusive).
+ * 3. Digit separators are allowed: `_` and `,`. These will be ignored when processed.
+ *
+ * @param numericString The string to validate.
+ * @param radix The source radix to be used for validation.
+ */
 export const numericInputIsValid = (
   numericString: string,
   radix: number
@@ -80,18 +135,40 @@ export const numericInputIsValid = (
   // We restrict ourselves to the subset of all the representable digits with given radix
   const partialDigitArray = DIGITS.substring(0, radix);
 
+  let decimalFound = false;
   for (; index < numericString.length; index++) {
-    if (partialDigitArray.indexOf(numericString[index]) < 0) {
-      return false;
+    const character = numericString[index];
+    switch (character) {
+      case "_":
+      case ",":
+        // valid separators
+        break;
+      case ".":
+        if (decimalFound) {
+          // decimal already found beforehand
+          return false;
+        } else {
+          // mark that we've found a decimal point.
+          decimalFound = true;
+        }
+        break;
+      default:
+        if (partialDigitArray.indexOf(character) < 0) {
+          return false;
+        }
     }
   }
 
   return true;
 };
 
-export const DIGITS =
-  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
-
-const partialDigitString = (radix: number): string => {
-  return DIGITS.substr(0, radix);
+/**
+ * Returns a numeric string with all (valid) digit separators removed.
+ *
+ * The valid digit separators are `_` and `,`.
+ *
+ * @param input The numeric string to remove separators from.
+ */
+export const removeDigitSeparatorsFrom = (input: string): string => {
+  return input.replace(/[_,]/g, "");
 };

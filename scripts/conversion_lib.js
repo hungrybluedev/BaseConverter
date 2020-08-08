@@ -1,4 +1,11 @@
+export const DIGITS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+const getPartialDigitString = (radix) => {
+    return DIGITS.substr(0, radix);
+};
 export const convertInteger = (input, radixFrom, radixTo) => {
+    if (radixFrom === radixTo) {
+        return input;
+    }
     const resultOrNull = parseBigIntFromRadix(input, radixFrom);
     if (!resultOrNull) {
         return null;
@@ -19,7 +26,7 @@ const parseBigIntFromRadix = (input, radix) => {
         default:
             sign = 1n;
     }
-    const partialDigitsFrom = partialDigitString(radix);
+    const partialDigitsFrom = getPartialDigitString(radix);
     const bigRadixFrom = BigInt(radix);
     while (index < input.length) {
         const digit = partialDigitsFrom.indexOf(input[index]);
@@ -31,16 +38,18 @@ const parseBigIntFromRadix = (input, radix) => {
     }
     return sign * result;
 };
-const convertBigIntToRadix = (result, radix) => {
-    let convertedArray = [];
-    const partialDigitsTo = partialDigitString(radix);
+const convertBigIntToRadix = (integer, radix) => {
+    let convertedArray = new Array();
+    const partialDigitsTo = getPartialDigitString(radix);
     const bigRadixTo = BigInt(radix);
-    while (result > 0) {
-        const digit = Number(result % bigRadixTo);
+    const isNegative = integer < 0n;
+    let absoluteValue = isNegative ? -integer : integer;
+    while (absoluteValue > 0n) {
+        const digit = Number(absoluteValue % bigRadixTo);
         convertedArray.unshift(partialDigitsTo[digit]);
-        result /= bigRadixTo;
+        absoluteValue /= bigRadixTo;
     }
-    return convertedArray.join("");
+    return (isNegative ? "-" : "") + convertedArray.join("");
 };
 export const numericInputIsValid = (numericString, radix) => {
     let index = 0;
@@ -56,14 +65,29 @@ export const numericInputIsValid = (numericString, radix) => {
         return false;
     }
     const partialDigitArray = DIGITS.substring(0, radix);
+    let decimalFound = false;
     for (; index < numericString.length; index++) {
-        if (partialDigitArray.indexOf(numericString[index]) < 0) {
-            return false;
+        const character = numericString[index];
+        switch (character) {
+            case "_":
+            case ",":
+                break;
+            case ".":
+                if (decimalFound) {
+                    return false;
+                }
+                else {
+                    decimalFound = true;
+                }
+                break;
+            default:
+                if (partialDigitArray.indexOf(character) < 0) {
+                    return false;
+                }
         }
     }
     return true;
 };
-export const DIGITS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
-const partialDigitString = (radix) => {
-    return DIGITS.substr(0, radix);
+export const removeDigitSeparatorsFrom = (input) => {
+    return input.replace(/[_,]/g, "");
 };

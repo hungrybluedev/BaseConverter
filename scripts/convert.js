@@ -1,4 +1,4 @@
-import { DIGITS, numericInputIsValid, convertInteger, } from "./conversion_lib.js";
+import { DIGITS, numericInputIsValid, removeDigitSeparatorsFrom, convertInteger, } from "./conversion_lib.js";
 const getStringValueFromInput = (id, defaultValue) => {
     const valueOrNull = document.getElementById(id);
     if (!valueOrNull) {
@@ -7,32 +7,33 @@ const getStringValueFromInput = (id, defaultValue) => {
     const value = valueOrNull;
     return value.value || defaultValue;
 };
-const reportIfIncorrectBase = (name, value) => {
-    if (value < 2 || value > DIGITS.length) {
+const reportIfIncorrectRadix = (name, radix) => {
+    if (radix < 2 || radix > DIGITS.length) {
         reportError("The " +
             name +
             " base should be between 2 and " +
             DIGITS.length +
             " inclusive. " +
-            value +
+            radix +
             " is invalid.");
     }
 };
 const getSourceBase = () => {
     const numericString = getStringValueFromInput("source-base", "10");
     const intValue = parseInt(numericString);
-    reportIfIncorrectBase("source", intValue);
+    reportIfIncorrectRadix("source", intValue);
     return intValue;
 };
 const getTargetBase = () => {
     const numericString = getStringValueFromInput("target-base", "16");
     const intValue = parseInt(numericString);
-    reportIfIncorrectBase("target", intValue);
+    reportIfIncorrectRadix("target", intValue);
     return intValue;
 };
 const getConvertedResult = () => {
     const numericString = getStringValueFromInput("source-value", "");
     if (!numericString) {
+        reportError("Please enter a value for the source.");
         return null;
     }
     const radixFrom = getSourceBase();
@@ -41,7 +42,8 @@ const getConvertedResult = () => {
         return null;
     }
     if (numericInputIsValid(numericString, radixFrom)) {
-        return convertInteger(numericString, radixFrom, radixTo);
+        const pureNumericString = removeDigitSeparatorsFrom(numericString);
+        return convertInteger(pureNumericString, radixFrom, radixTo);
     }
     else {
         reportError("The input is not valid for the given radix (base): " + radixFrom);
@@ -58,9 +60,6 @@ const calculateResult = () => {
     }
     if (convertedResult) {
         result.innerHTML = convertedResult;
-    }
-    else {
-        reportError("Please enter a value for the source.");
     }
 };
 const clearError = () => {
