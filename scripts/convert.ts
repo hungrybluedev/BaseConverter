@@ -1,38 +1,8 @@
-import { convertInteger } from "./conversion_lib.js";
-
-const DIGITS =
-  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
-
-const numericInputIsValid = (
-  numericString: string,
-  radixFrom: number
-): boolean => {
-  let index = 0;
-
-  // check for sign
-  switch (numericString[0]) {
-    case "-":
-    case "+":
-      index = 1;
-      break;
-    default:
-      break;
-  }
-
-  if (radixFrom < 2 || radixFrom > DIGITS.length) {
-    return false;
-  }
-  // We restrict ourselves to the subset of all the representable digits with given radixFrom
-  const partialDigitArray = DIGITS.substring(0, radixFrom);
-
-  for (; index < numericString.length; index++) {
-    if (partialDigitArray.indexOf(numericString[index]) < 0) {
-      return false;
-    }
-  }
-
-  return true;
-};
+import {
+  DIGITS,
+  numericInputIsValid,
+  convertInteger,
+} from "./conversion_lib.js";
 
 const getStringValueFromInput = (id: string, defaultValue: string): string => {
   const valueOrNull = document.getElementById(id);
