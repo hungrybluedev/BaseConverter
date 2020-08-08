@@ -34,12 +34,11 @@ a.button-link {
   flex-direction: column;
   justify-content: center;
   margin: 1rem;
-  transition: filter, font-size 300ms ease-out;
+  transition: filter 100ms ease-out;
 }
 
 a.button-link:active {
   filter: brightness(95%);
-  font-size: 1.7rem;
 }
 
 input {
@@ -141,6 +140,5 @@ section#result-section {
   }
   a.button-link:hover {
     filter: brightness(110%);
-    font-size: 1.7rem;
   }
 }
