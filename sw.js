@@ -10,7 +10,7 @@ const filesToCache = [
     "https://hungrybluedev.github.io/BaseConverter/",
     "https://hungrybluedev.github.io/BaseConverter/baseconv.webmanifest",
 ];
-const cacheName = "HBDBaseConverterAndArithmetic-v0.0.1";
+const cacheName = "HBDBaseConverterAndArithmetic-v0.0.2";
 self.addEventListener("install", (event) => {
     event.waitUntil(caches
         .open(cacheName)
